@@ -20,7 +20,6 @@ int main()
   std::cout << "Program start" << std::endl;
   pthread_t p1,p2;
   pthread_mutex_init(&mutex,nullptr);
-  //std::cout << "Debug 1" << std::endl;
   std::cout << "Waiting for input" << std::endl;
   pthread_create(&p1,nullptr,f1,nullptr);
   pthread_create(&p2,nullptr,f2,nullptr);
@@ -42,10 +41,8 @@ void *f1(void*)
   {
     if (pthread_mutex_trylock(&mutex)!=EBUSY)
     {
-      //pthread_mutex_lock(&mutex);
       for (size_t i = 0; i < SYMB_COUNT; i++)
       {
-        //std::cout << "1";
         putchar('1');
         fflush(stdout);
         sleep(1);
@@ -65,10 +62,8 @@ void *f2(void*)
   {
     if (pthread_mutex_trylock(&mutex)!=EBUSY)
     {
-      //pthread_mutex_lock(&mutex);
       for (size_t i = 0; i < SYMB_COUNT; i++)
       {
-        //std::cout << "2";
         putchar('2');
         fflush(stdout);
         sleep(1);
