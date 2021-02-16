@@ -1,23 +1,31 @@
 #include <iostream>
 #include <pthread.h>
 #include <unistd.h>
-//#include <stdio.h>
 
-void *f1(void *flag);
-void *f2(void *flag);
+typedef struct
+{
+  bool flag;
+  char symb;
+} args;
+
+void *f1(void *a);
+void *f2(void *a);
 
 int main()
 {
-  bool  flag1=false,
-        flag2=false;
+  args a1,a2;
+  a1.flag = false;
+  a2.flag = false;
+  a1.symb = '1';
+  a2.symb = '2';
   int   e_val1,
         e_val2;
   pthread_t p1, p2;
-  pthread_create(&p1,nullptr,f1,&flag1);
-  pthread_create(&p2,nullptr,f2,&flag2);
-  getchar();
-  flag1=true;
-  flag2=true;
+  pthread_create(&p1,nullptr,f1,&a1);
+  pthread_create(&p2,nullptr,f2,&a2);
+  std::cin.get();
+  a1.flag=true;
+  a2.flag=true;
   pthread_join(p1,(void **)&e_val1);
   pthread_join(p2,(void **)&e_val2);
   std::cout << "1 thread exit code: " << e_val1 << std::endl;
@@ -26,21 +34,23 @@ int main()
 }
 
 
-void *f1(void *flag)
+void *f1(void *a)
 {
-  while(! *(bool *)flag)
+  args *arg = (args *) a;
+  while(! arg->flag)
   {
-    std::cout << "1\n";
+    std::cout << arg->symb << std::flush;
     sleep(1);
   }
   pthread_exit((void*)11);
 }
 
-void *f2(void *flag)
+void *f2(void *a)
 {
-  while(! *(bool *)flag)
+  args *arg = (args *) a;
+  while(! arg->flag)
   {
-    std::cout << "2\n";
+    std::cout << arg->symb << std::flush;
     sleep(2);
   }
   pthread_exit((void*)22);
