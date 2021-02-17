@@ -23,7 +23,7 @@ int main()
   std::cout << "Waiting for input" << std::endl;
   pthread_create(&p1,nullptr,f1,nullptr);
   pthread_create(&p2,nullptr,f2,nullptr);
-  getchar();
+  std::cin.get();
   std::cout << "Input received" << std::endl;
   flag1=true;
   flag2=true;
@@ -43,8 +43,7 @@ void *f1(void*)
     {
       for (size_t i = 0; i < SYMB_COUNT; i++)
       {
-        putchar('1');
-        fflush(stdout);
+        std::cout << '1' << std::flush;
         sleep(1);
       }
       pthread_mutex_unlock(&mutex);
@@ -64,8 +63,7 @@ void *f2(void*)
     {
       for (size_t i = 0; i < SYMB_COUNT; i++)
       {
-        putchar('2');
-        fflush(stdout);
+        std::cout << '2' << std::flush;
         sleep(1);
       }
       pthread_mutex_unlock(&mutex);

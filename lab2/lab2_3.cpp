@@ -3,7 +3,7 @@
 #include <unistd.h>
 #include <time.h>
 
-
+#define M_T_OUT 5 
 #define SYMB_COUNT 5
 
 bool  flag1=false,
@@ -27,7 +27,7 @@ int main()
   std::cout << "Waiting for input" << std::endl;
   pthread_create(&p1,nullptr,f1,nullptr);
   pthread_create(&p2,nullptr,f2,nullptr);
-  getchar();
+  std::cin.get();
   std::cout << "Input received" << std::endl;
   flag1=true;
   flag2=true;
@@ -44,13 +44,12 @@ void *f1(void*)
   while(!flag1)
   {
     clock_gettime(CLOCK_REALTIME,&t1);
-    t1.tv_sec+=5;
+    t1.tv_sec+=M_T_OUT;
     if (pthread_mutex_timedlock(&mutex,&t1)!=ETIMEDOUT)
     {
       for (size_t i = 0; i < SYMB_COUNT; i++)
       {
-        putchar('1');
-        fflush(stdout);
+        std::cout << '1' << std::flush;
         sleep(1);
       }
       pthread_mutex_unlock(&mutex);
@@ -67,13 +66,12 @@ void *f2(void*)
   while(!flag2)
   {
     clock_gettime(CLOCK_REALTIME,&t2);
-    t2.tv_sec+=5;
+    t2.tv_sec+=M_T_OUT;
     if (pthread_mutex_timedlock(&mutex,&t2)!=ETIMEDOUT)
     {
       for (size_t i = 0; i < SYMB_COUNT; i++)
       {
-        putchar('2');
-        fflush(stdout);
+        std::cout << '2' << std::flush;
         sleep(1);
       }
       pthread_mutex_unlock(&mutex);
