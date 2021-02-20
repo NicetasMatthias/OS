@@ -1,6 +1,7 @@
 #include <iostream>
 #include <pthread.h>
 #include <unistd.h>
+#include <string.h>
 
 
 #define SYMB_COUNT 5
@@ -36,10 +37,11 @@ int main()
 
 void *f1(void*)
 {
+  int err_c;
   std::cout << "\nthread 1 start" << std::endl;
   while(!flag1)
   {
-    if (pthread_mutex_trylock(&mutex)!=EBUSY)
+    if ((err_c=pthread_mutex_trylock(&mutex))==0)
     {
       for (size_t i = 0; i < SYMB_COUNT; i++)
       {
@@ -48,7 +50,11 @@ void *f1(void*)
       }
       pthread_mutex_unlock(&mutex);
     }
-    sleep(2);
+    else
+    {
+      std::cout << "\n1 thread error code: " << err_c << " - " << strerror(err_c) << std::endl;
+    }
+    sleep(5);
   }
   std::cout << "\nthread 1 finish" << std::endl;
   pthread_exit(nullptr);
@@ -56,10 +62,11 @@ void *f1(void*)
 
 void *f2(void*)
 {
+  int err_c;
   std::cout << "\nthread 2 start" << std::endl;
   while(!flag2)
   {
-    if (pthread_mutex_trylock(&mutex)!=EBUSY)
+    if ((err_c=pthread_mutex_trylock(&mutex))==0)
     {
       for (size_t i = 0; i < SYMB_COUNT; i++)
       {
@@ -68,7 +75,11 @@ void *f2(void*)
       }
       pthread_mutex_unlock(&mutex);
     }
-    sleep(2);
+    else
+    {
+      std::cout << "\n2 thread error code: " << err_c << " - " << strerror(err_c) << std::endl;
+    }
+    sleep(5);
   }
   std::cout << "\nthread 2 finish" << std::endl;
   pthread_exit(nullptr);

@@ -2,8 +2,9 @@
 #include <pthread.h>
 #include <unistd.h>
 #include <time.h>
+#include <string.h>
 
-#define M_T_OUT 5 
+#define M_T_OUT 5
 #define SYMB_COUNT 5
 
 bool  flag1=false,
@@ -41,11 +42,12 @@ int main()
 void *f1(void*)
 {
   std::cout << "\nthread 1 start" << std::endl;
+  int err_c;
   while(!flag1)
   {
     clock_gettime(CLOCK_REALTIME,&t1);
     t1.tv_sec+=M_T_OUT;
-    if (pthread_mutex_timedlock(&mutex,&t1)!=ETIMEDOUT)
+    if ((err_c=pthread_mutex_timedlock(&mutex,&t1))==0)
     {
       for (size_t i = 0; i < SYMB_COUNT; i++)
       {
@@ -54,7 +56,11 @@ void *f1(void*)
       }
       pthread_mutex_unlock(&mutex);
     }
-    sleep(2);
+    else
+    {
+      std::cout << "\n1 thread error code: " << err_c << " - " << strerror(err_c) << std::endl;
+    }
+    sleep(5);
   }
   std::cout << "\nthread 1 finish" << std::endl;
   pthread_exit(nullptr);
@@ -62,12 +68,13 @@ void *f1(void*)
 
 void *f2(void*)
 {
+  int err_c;
   std::cout << "\nthread 2 start" << std::endl;
   while(!flag2)
   {
     clock_gettime(CLOCK_REALTIME,&t2);
     t2.tv_sec+=M_T_OUT;
-    if (pthread_mutex_timedlock(&mutex,&t2)!=ETIMEDOUT)
+    if ((err_c=pthread_mutex_timedlock(&mutex,&t2))==0)
     {
       for (size_t i = 0; i < SYMB_COUNT; i++)
       {
@@ -76,7 +83,11 @@ void *f2(void*)
       }
       pthread_mutex_unlock(&mutex);
     }
-    sleep(2);
+    else
+    {
+      std::cout << "\n2 thread error code: " << err_c << " - " << strerror(err_c) << std::endl;
+    }
+    sleep(5);
   }
   std::cout << "\nthread 2 finish" << std::endl;
   pthread_exit(nullptr);
