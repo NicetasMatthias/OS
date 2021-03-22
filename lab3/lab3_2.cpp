@@ -6,7 +6,7 @@
 #include <fcntl.h>
 
 bool  flag1 = false,
-      flag2 = false;
+flag2 = false;
 
 int fields[2];
 
@@ -43,6 +43,7 @@ void *f1(void *)
   std::cout << "\nthread 1 start" << std::endl;
   char buffer[256]={0};
   socklen_t size;
+  int rv;
   struct sockaddr_in sa;
   unsigned int sa_len = sizeof(sa);
   int sockfd = socket(AF_INET,SOCK_STREAM, 0);
@@ -57,8 +58,12 @@ void *f1(void *)
     }
     else
     {
-    sprintf(buffer, "Family: %d Port: %d Addr: %d", sa.sin_family, sa.sin_port ,sa.sin_addr.s_addr);
-    write(fields[1], buffer, sizeof(buffer));
+      sprintf(buffer, "Family: %d Port: %d Addr: %d", sa.sin_family, sa.sin_port ,sa.sin_addr.s_addr);
+      rv = write(fields[1], buffer, sizeof(buffer));
+      if (rv == -1)
+      {
+        perror("Ошибка записи");
+      }
     }
     sleep(4);
   }
@@ -71,12 +76,24 @@ void *f2(void *)
 {
   std::cout << "\nthread 2 start" << std::endl;
   char buffer[256]={0};
+  int rv;
   while(!flag2)
   {
     sleep(4);
     memset(buffer,0,sizeof(buffer));
-    read(fields[0],buffer,sizeof(buffer));
-    std::cout << buffer << std::endl;
+    rv = read(fields[0],buffer,sizeof(buffer));
+    if (rv == -1)
+    {
+      perror("Ошибка чтения");
+    }
+    else if (rv == 0)
+    {
+      std::cout << "Ошибка чтения: канал со стороны передачи закрыт"<< std::endl;
+    }
+    else
+    {
+      std::cout << buffer << std::endl;
+    }
   }
   std::cout << "\nthread 2 finish" << std::endl;
   pthread_exit(nullptr);
