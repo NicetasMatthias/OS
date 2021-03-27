@@ -21,7 +21,11 @@ int main()
     std::cout << "Родительский: id текущего процесса: " << getpid() << std::endl;
     std::cout << "Родительский: id родительского процесса: " << getppid() << std::endl;
     std::cout << "Родительский: id дочернего процесса: " << pid << std::endl;
-    waitpid(pid,&status,0);
+    while(waitpid(pid,&status,WNOHANG)==0)
+    {
+      std::cout << "Родительский: ожидаем завершения дочернего" << std::endl;
+      sleep(1);
+    }
     if (WIFEXITED(status))
     {
       std::cout << "Код завершения дочернего процесса: " << WEXITSTATUS(status) <<  std::endl;

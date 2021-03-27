@@ -14,5 +14,4 @@ int main(int argc, char const *argv[])
   }
 
   exit(66);
-  return 0;
 }
