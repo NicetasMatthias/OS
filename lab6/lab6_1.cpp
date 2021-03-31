@@ -6,6 +6,7 @@
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <cstring>
+#include <netinet/in.h>
 
 //эта прога передает
 
@@ -19,14 +20,28 @@ char s_name_w[] = "/SanyaW";
 
 void *func(void *)
 {
-  int data = 0;
+  char buffer[256]={0};
+  struct sockaddr_in sa;
+  unsigned int sa_len = sizeof(sa);
+  int sockfd = socket(AF_INET,SOCK_STREAM, 0);
+  sa.sin_family = AF_INET;
+  sa.sin_addr.s_addr = htonl(INADDR_LOOPBACK);
+  bind (sockfd,(struct sockaddr*)&sa,sizeof(sa));
+
   while(!flag)
   {
-    memcpy(addr, &data, sizeof(data));
-    sem_post(s_w);
-    sem_wait(s_r);
+    if (getsockname(sockfd, (struct sockaddr*)&sa, &sa_len))
+    {
+      perror("getsockname error");
+    }
+    else
+    {
+      sprintf(buffer, "Family: %d Port: %d Addr: %d", sa.sin_family, sa.sin_port ,sa.sin_addr.s_addr);
+      memcpy(addr, buffer, sizeof(buffer));
+      sem_post(s_w);
+      sem_wait(s_r);
+    }
     sleep(1);
-    data++;
   }
   pthread_exit((void*)0);
 }
@@ -35,7 +50,7 @@ int main()
 {
   int e_val;
   pthread_t p;
-  int mem_size = sizeof(int); //ТУТ БУДЕТ ТИП ЗНАЧЕНИЯ КОТОРОЕ БУДЕМ ПЕРЕДАВАТЬ
+  int mem_size = sizeof(char[256]);
   s_w = sem_open(s_name_w, O_CREAT, 0644, 0);
   s_r = sem_open(s_name_r, O_CREAT, 0644, 0);
   m_ind = shm_open(m_name, O_CREAT|O_RDWR, 0644);

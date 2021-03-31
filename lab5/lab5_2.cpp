@@ -8,7 +8,7 @@
 bool flag=false;
 sem_t *st;
 std::ofstream f;
-char s_name[] = "Sanya";
+char s_name[] = "/Sanya";
 
 void *func(void *)
 {

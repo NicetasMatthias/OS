@@ -19,13 +19,13 @@ char s_name_w[] = "/SanyaW";
 
 void *func(void *)
 {
-  int data;
+  char buffer[256]={0};
   while(!flag)
   {
     sem_wait(s_w);
-    memcpy(&data, addr, sizeof(data));
+    memcpy(buffer, addr, sizeof(buffer));
     sem_post(s_r);
-    std::cout << data << std::flush;
+    std::cout << buffer << std::endl;
   }
   pthread_exit((void*)0);
 }
@@ -34,7 +34,7 @@ int main()
 {
   int e_val;
   pthread_t p;
-  int mem_size; //ТУТ БУДЕТ ТИП ЗНАЧЕНИЯ КОТОРОЕ БУДЕМ ПЕРЕДАВАТЬ
+  int mem_size = sizeof(char[256]);
   s_w = sem_open(s_name_w, O_CREAT, 0644, 0);
   s_r = sem_open(s_name_r, O_CREAT, 0644, 0);
   m_ind = shm_open(m_name, O_CREAT|O_RDWR, 0644);
