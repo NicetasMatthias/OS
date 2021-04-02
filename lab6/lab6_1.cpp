@@ -38,6 +38,7 @@ void *func(void *)
     {
       sprintf(buffer, "Family: %d Port: %d Addr: %d", sa.sin_family, sa.sin_port ,sa.sin_addr.s_addr);
       memcpy(addr, buffer, sizeof(buffer));
+      std::cout << buffer << std::endl;
       sem_post(s_w);
       sem_wait(s_r);
     }
