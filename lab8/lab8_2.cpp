@@ -37,6 +37,7 @@ int main()
   if ((qd = mq_open(name,O_CREAT|O_RDONLY|O_NONBLOCK, 0644, &attr))==-1)
   {
     perror("mq_open error");
+    return 1;
   }
   pthread_create(&p,nullptr,func,nullptr);
 

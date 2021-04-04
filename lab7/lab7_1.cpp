@@ -77,13 +77,18 @@ void *func(void *)
 
 int main()
 {
+  int err_c;
   signal(SIGPIPE,sig_handler);
   pthread_create(&pf,nullptr,func_fopen,nullptr);
 
   std::cin.get();
   flag = true;
   pthread_join(pf,nullptr);
-  pthread_join(p,nullptr);
+  err_c = pthread_join(p,nullptr);
+  if (err_c)
+  {
+    std::cout << "func error code = " << err_c << std::endl;
+  }
   close(fd);
   unlink(fname);
 }
