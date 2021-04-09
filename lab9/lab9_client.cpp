@@ -17,6 +17,7 @@ pthread_t reception_p;
 
 struct sockaddr_in workSockAddr;
 
+//поток отправки запросов
 void *transmission(void *)
 {
   int count = 1;
@@ -24,22 +25,22 @@ void *transmission(void *)
   while(!transmission_flag)
   {
     sleep(1);
-    int len = sprintf(sndbuf,"request %d",count);
+    int len = sprintf(sndbuf,"request №%d",count);
     int sentcount = send(workSocket,sndbuf,len,0);
     if (sentcount == -1)
     {
-      perror("send error");
+      perror("# send error");
     }
     else
     {
-		    std::cout << "transmited: " << sndbuf << std::endl;
+		    std::cout << std::endl << "TRANSMITED: " << std::endl << sndbuf << std::endl;
+        count++;
     }
-    count++;
   }
   pthread_exit((void*)0);
 }
 
-
+//поток приема ответов
 void *reception(void *)
 {
   char rcvbuf[256];
@@ -49,23 +50,23 @@ void *reception(void *)
     int reccount = recv(workSocket,rcvbuf,256,0);
     if (reccount == -1)
     {
-      perror("recv error");
+      perror("# recv error");
       sleep(1);
     }
     else if (reccount == 0)
     {
-      std::cout << "disconnect" << std::endl;
+      std::cout << "!disconnect" << std::endl;
       sleep(1);
     }
     else
     {
-      std::cout << rcvbuf << std::endl;
+      std::cout << std::endl << "RECIVED:" << std::endl << rcvbuf << std::endl;
     }
   }
   pthread_exit((void*)0);
 }
 
-
+//поток установления соединения
 void *connection(void *)
 {
   while(!connection_flag)
@@ -73,8 +74,8 @@ void *connection(void *)
     int result = connect(workSocket,(struct sockaddr*)&workSockAddr,sizeof(workSockAddr));
     if (result == -1)
     {
-      perror("connect error");
-      sleep(1);
+      perror("# connect error");
+      sleep(2);
     }
     else
     {

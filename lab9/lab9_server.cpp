@@ -34,12 +34,12 @@ void *reception(void *)
     int reccount = recv(workSocket,(void*)rcvbuf,256,0);
     if (reccount == -1)
     {
-      perror("recv error");
+      perror("# recv error");
       sleep(1);
     }
     else if (reccount == 0)
     {
-      std::cout << "disconnect" << std::endl;
+      std::cout << "!disconnect" << std::endl;
       sleep(1);
     }
     else
@@ -51,6 +51,7 @@ void *reception(void *)
   }
   pthread_exit((void*)0);
 }
+
 //поток обработки запросов
 void *processing(void *)
 {
@@ -65,10 +66,9 @@ void *processing(void *)
       std::string s = requests.back();
       requests.pop_back();
       pthread_mutex_unlock(&mutex_r);
-      //тут магия с целевой функцией
       if (getsockname(workSocket, (struct sockaddr*)&sa, &sa_len))
       {
-        perror("getsockname error");
+        perror("# getsockname error");
       }
       else
       {
@@ -103,7 +103,7 @@ void *transmission(void *)
       int sentcount = send(workSocket,sndbuf,sizeof(sndbuf),0);
       if (sentcount == -1)
       {
-        perror("send error");
+        perror("# send error");
       }
       else
       {
@@ -119,7 +119,7 @@ void *transmission(void *)
   pthread_exit((void*)0);
 }
 
-//поток ожидания соединений
+//поток ожидания соединения
 void *waiting(void *)
 {
   socklen_t size = sizeof(workSockAddr);
@@ -128,7 +128,7 @@ void *waiting(void *)
     workSocket = accept(listenSocket,(struct sockaddr*)&workSockAddr,&size);
     if (workSocket == -1)
     {
-      perror("accept error");
+      perror("# accept error");
       sleep(1);
     }
     else
@@ -156,11 +156,6 @@ int main()
   listenSockAddr.sin_port = htons(2000);
   listenSockAddr.sin_addr.s_addr = htonl(INADDR_ANY);
   bind(listenSocket,(struct sockaddr*)&listenSockAddr,sizeof(listenSockAddr));
-  //это отладочная штука
-  int optval = 1;
-  setsockopt(listenSocket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-  setsockopt(workSocket, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
-  //
   listen(listenSocket,SOMAXCONN);
 
 

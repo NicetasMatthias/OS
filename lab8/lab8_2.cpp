@@ -32,7 +32,7 @@ int main()
   int e_val;
   pthread_t p;
   mq_attr attr;
-  attr.mq_maxmsg = 5;
+  attr.mq_maxmsg = 15;
   attr.mq_msgsize = 256;
   if ((qd = mq_open(name,O_CREAT|O_RDONLY|O_NONBLOCK, 0644, &attr))==-1)
   {
