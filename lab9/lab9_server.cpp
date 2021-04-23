@@ -19,6 +19,7 @@ static pthread_mutex_t mutex_r;
 static pthread_mutex_t mutex_a;
 
 struct sockaddr_in workSockAddr;
+struct sockaddr_in checkSockAddr;
 
 pthread_t reception_p;
 pthread_t processing_p;
@@ -122,6 +123,8 @@ void *transmission(void *)
 //поток ожидания соединения
 void *waiting(void *)
 {
+  struct sockaddr_in checkSockAddr;
+
   socklen_t size = sizeof(workSockAddr);
   while(!waiting_flag)
   {
@@ -133,9 +136,11 @@ void *waiting(void *)
     }
     else
     {
+        getsockname(workSocket, (struct sockaddr*)&checkSockAddr, &size);
 
         std::cout << "connection established" << std::endl;
-        std::cout << "addr: " << workSockAddr.sin_addr.s_addr << "\nport: " << workSockAddr.sin_port << std::endl;
+        std::cout << "\nme:" << "\naddr: " << checkSockAddr.sin_addr.s_addr << "\nport: " << checkSockAddr.sin_port << std::endl;
+        std::cout << "\nclient:" << "\naddr: " << workSockAddr.sin_addr.s_addr << "\nport: " << workSockAddr.sin_port << std::endl << std::endl;
         pthread_create(&reception_p,nullptr,reception,nullptr);
         pthread_create(&processing_p,nullptr,processing,nullptr);
         pthread_create(&transmission_p,nullptr,transmission,nullptr);
@@ -147,7 +152,7 @@ void *waiting(void *)
 
 int main()
 {
-
+  int err_code;
   struct sockaddr_in listenSockAddr;
 
   listenSocket = socket(AF_INET,SOCK_STREAM,0);
@@ -168,10 +173,23 @@ int main()
   processing_flag = true;
   transmission_flag = true;
   waiting_flag = true;
-  pthread_join(reception_p,nullptr);
-  pthread_join(processing_p,nullptr);
-  pthread_join(transmission_p,nullptr);
+
   pthread_join(waiting_p,nullptr);
+  err_code = pthread_join(reception_p,nullptr);
+  if (err_code)
+  {
+    std::cout << "reception pthread_join() error: " << strerror(err_code) << std::endl;
+  }
+  err_code = pthread_join(processing_p,nullptr);
+  if (err_code)
+  {
+    std::cout << "processing pthread_join() error: " << strerror(err_code) << std::endl;
+  }
+  err_code = pthread_join(transmission_p,nullptr);
+  if (err_code)
+  {
+    std::cout << "transmission pthread_join() error: " << strerror(err_code) << std::endl;
+  }
 
   pthread_mutex_destroy(&mutex_r);
   pthread_mutex_destroy(&mutex_a);
